@@ -60,6 +60,13 @@ exports.getAllEvents = async (req, res) => {
 // RSVP to Event
 exports.rsvpToEvent = async (req, res) => {
   try {
+    console.log("Received RSVP Request:", req.params.id);
+    console.log("Authenticated User:", req.user);
+
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "Unauthorized: No user data" });
+    }
+
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
 
@@ -70,13 +77,17 @@ exports.rsvpToEvent = async (req, res) => {
     event.attendees.push(req.user._id);
     await event.save();
 
-    // Emit real-time update via Socket.IO
+    console.log("RSVP successful, emitting event...");
+
+    // ✅ Emit WebSocket event after RSVP is successful
     req.io.emit("attendeeUpdate", {
       eventId: event._id,
       attendees: event.attendees,
     });
+
     res.json({ message: "RSVP successful" });
   } catch (err) {
+    console.error("Error in RSVP route:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
