@@ -13,20 +13,30 @@ const app = express();
 const server = http.createServer(app);
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, // Frontend URL
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Database connection
 connectDB(); // ✅ Replace old connection code with this
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRoutes);
-
 // Socket.IO
 const io = initializeSocket(server);
 app.set("io", io);
 
+app.use((req, res, next) => {
+  req.io = app.get("io");
+  next();
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/events", eventRoutes);

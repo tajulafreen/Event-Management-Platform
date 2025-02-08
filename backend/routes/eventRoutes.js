@@ -6,7 +6,7 @@ const {
   getAllEvents,
   rsvpToEvent,
 } = require("../controllers/eventController");
-const upload = require("../config/cloudinary"); // ✅ Now points directly to the multer instance
+const { upload } = require("../config/cloudinary"); // ✅ Ensure this is correct
 
 // Routes
 router.post("/", authenticate, upload.single("image"), createEvent);
