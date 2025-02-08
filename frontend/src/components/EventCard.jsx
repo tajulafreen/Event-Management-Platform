@@ -25,9 +25,9 @@ export default function EventCard({ event }) {
 
       const data = await response.json();
       if (response.ok) {
-        alert("RSVP successful!");
+        toast.success("RSVP successful!");
       } else {
-        alert(`Error: ${data.message}`);
+        toast.error(`Error: ${data.message}`);
       }
     } catch (error) {
       console.error("RSVP Error:", error);
@@ -50,7 +50,7 @@ export default function EventCard({ event }) {
       <p className="text-sm text-gray-500 mb-4">📍 {event.location}</p>
       <div className="flex justify-between items-center">
         <span className="text-blue-600">
-          👥 {event.attendees?.length || 0} attendees
+          👥 {event.attendees ? event.attendees.length : 0} attendees
         </span>
         <button
           onClick={handleRSVP}

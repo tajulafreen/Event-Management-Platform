@@ -5,10 +5,15 @@ import { io } from "socket.io-client";
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
-  const socket = io("http://localhost:5000");
+
   const API_BASE_URL = "http://localhost:5000";
 
   useEffect(() => {
+    const socket = io("http://localhost:5000", {
+      withCredentials: true,
+
+      transports: ["websocket"],
+    });
     const fetchEvents = async () => {
       const res = await axios.get(`${API_BASE_URL}/api/events`);
       setEvents(res.data);
@@ -16,6 +21,8 @@ export default function Dashboard() {
     fetchEvents();
 
     socket.on("attendeeUpdate", (data) => {
+      console.log("Received WS update:", data);
+      // ... existing update logic ...
       setEvents((prev) =>
         prev.map((event) =>
           event._id === data.eventId

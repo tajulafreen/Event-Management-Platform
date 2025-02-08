@@ -78,7 +78,10 @@ exports.rsvpToEvent = async (req, res) => {
     await event.save();
 
     console.log("RSVP successful, emitting event...");
-
+    const updatedEvent = await Event.findById(event._id).populate(
+      "attendees",
+      "username"
+    );
     // ✅ Emit WebSocket event after RSVP is successful
     req.io.emit("attendeeUpdate", {
       eventId: event._id,
