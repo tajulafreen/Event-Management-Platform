@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
@@ -14,9 +13,8 @@ export default function App() {
       <Router>
         <Navbar />
         <Toaster position="top-right" /> {/* For notifications */}
-        <div className="min-h-screen bg-gray-100 p-4">
+        <div className="min-h-screen bg-gray-300   p-4">
           <div className="container mx-auto">
-            <h1>hi</h1>
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />
