@@ -1,18 +1,38 @@
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-
+import { toast } from "react-hot-toast";
 export default function EventCard({ event }) {
   const { user } = useAuth();
   const API_BASE_URL = "http://localhost:5000";
   const handleRSVP = async () => {
-    if (!user) return alert("Please login to RSVP");
-    await axios.post(
-      `${API_BASE_URL}/api/events/${event._id}/rsvp`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    try {
+      const token = localStorage.getItem("token"); // ✅ Ensure token is included
+      if (!token) {
+        toast("You must be logged in to RSVP!");
+        return;
       }
-    );
+
+      const response = await fetch(
+        `http://localhost:5000/api/events/${event._id}/rsvp`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ Send token for authentication
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        alert("RSVP successful!");
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("RSVP Error:", error);
+      alert("Something went wrong.");
+    }
   };
 
   return (
