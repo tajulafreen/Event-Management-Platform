@@ -46,7 +46,81 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+exports.checkEventOwnership = async (req, res, next) => {
+  try {
+    const event = await Event.findById(req.params.id);
 
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // Check if logged-in user is the event creator
+    if (event.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    req.event = event; // Attach event to request object
+    next();
+  } catch (err) {
+    console.error("Ownership check error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Update Event (Owner only)
+exports.updateEvent = async (req, res) => {
+  try {
+    console.log("Updating Event ID:", req.params.id);
+    console.log("Request Body:", req.body);
+
+    if (!req.params.id) {
+      return res.status(400).json({ message: "Event ID is missing" });
+    }
+
+    const updates = Object.keys(req.body);
+    const allowedUpdates = [
+      "name",
+      "description",
+      "date",
+      "location",
+      "category",
+    ];
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update)
+    );
+
+    if (!isValidOperation) {
+      return res.status(400).json({ message: "Invalid updates!" });
+    }
+
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    if (event.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    updates.forEach((update) => (event[update] = req.body[update]));
+    await event.save();
+
+    res.json(event);
+  } catch (err) {
+    console.error("❌ Update Event Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Delete Event (Owner only)
+exports.deleteEvent = async (req, res) => {
+  try {
+    await req.event.deleteOne();
+    res.json({ message: "Event deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // Get All Events
 exports.getAllEvents = async (req, res) => {
   try {

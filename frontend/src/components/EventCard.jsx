@@ -1,26 +1,61 @@
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+
 export default function EventCard({ event }) {
   const { user } = useAuth();
   const API_BASE_URL = "http://localhost:5000";
+  const navigate = useNavigate(); // ✅ Initialize navigate
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You must be logged in to delete an event!");
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/events/${event._id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success("Event deleted successfully!");
+        window.location.reload(); // ✅ Refresh event list
+      } else {
+        const data = await response.json();
+        toast.error(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Delete Error:", error);
+      toast.error("Failed to delete event.");
+    }
+  };
+
+  const handleEdit = () => {
+    navigate(`/edit-event/${event._id}`); // ✅ Redirects to the Edit Page
+  };
+
   const handleRSVP = async () => {
     try {
-      const token = localStorage.getItem("token"); // ✅ Ensure token is included
+      const token = localStorage.getItem("token");
       if (!token) {
         toast("You must be logged in to RSVP!");
         return;
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/events/${event._id}/rsvp`,
-
+        `${API_BASE_URL}/api/events/${event._id}/rsvp`,
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ Send token for authentication
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -32,8 +67,8 @@ export default function EventCard({ event }) {
         toast.error(`Error: ${data.message}`);
       }
     } catch (error) {
-      // console.error("RSVP Error:", error);
-      alert("Something went wrong.");
+      console.error("RSVP Error:", error);
+      toast.error("Something went wrong.");
     }
   };
 
@@ -65,6 +100,23 @@ export default function EventCard({ event }) {
         >
           RSVP
         </button>
+        {user && String(event.createdBy?._id) === String(user._id) && (
+          <div className="flex gap-2 mt-4">
+            {/* 🔹 Redirect to Edit Page on Click */}
+            <button
+              onClick={handleEdit}
+              className="text-blue-500 hover:text-blue-700"
+            >
+              Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              className="text-red-500 hover:text-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
