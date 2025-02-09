@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 export default function CreateEvent() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [categories, setCategories] = useState("Music");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
   const [image, setImage] = useState(null);
@@ -20,6 +21,7 @@ export default function CreateEvent() {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
+    formData.append("category", categories); // ✅ Ensure category is included
     formData.append("date", date);
     formData.append("location", location);
     if (image) formData.append("image", image);
@@ -34,7 +36,10 @@ export default function CreateEvent() {
       toast.success("Event created!");
       navigate("/");
     } catch (err) {
-      toast.error("Failed to create event!");
+      console.error("Create Event Error:", err.response?.data || err.message);
+      toast.error(
+        `Failed to create event! ${err.response?.data?.message || ""}`
+      );
     }
   };
 
@@ -61,6 +66,25 @@ export default function CreateEvent() {
               className="w-full p-2 border rounded"
               required
             />
+          </div>
+          <div>
+            <label className="block text-gray-700">Category</label>
+            <select
+              value={categories}
+              onChange={(e) =>
+                setCategories(
+                  e.target.value.charAt(0).toUpperCase() +
+                    e.target.value.slice(1).toLowerCase()
+                )
+              }
+              className="w-full p-2 border rounded"
+            >
+              <option value="Music">Music</option>
+              <option value="Sports">Sports</option>
+              <option value="Tech">Tech</option>
+              <option value="Business">Business</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div>
             <label className="block text-gray-700">Date</label>
