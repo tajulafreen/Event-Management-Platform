@@ -4,45 +4,45 @@ const { cloudinary } = require("../config/cloudinary");
 // Create Event
 exports.createEvent = async (req, res) => {
   try {
-    const { name, description, date, location } = req.body;
+    const { name, description, category, date, location } = req.body;
     let imageUrl = "";
 
-    console.log("Uploaded file:", req.file); // ✅ Debugging Log
+    // ✅ Convert category to Title Case (First letter uppercase)
+    const formattedCategory =
+      category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+
+    console.log("Formatted Category:", formattedCategory);
 
     if (req.file) {
-      // ✅ Fix: Upload buffer instead of file path
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: "event_images" },
           (error, result) => {
-            if (error) {
-              console.error("Cloudinary Upload Error:", error);
-              reject(error);
-            } else {
-              resolve(result);
-            }
+            if (error) reject(error);
+            else resolve(result);
           }
         );
-        stream.end(req.file.buffer); // ✅ Send buffer to Cloudinary
+        stream.end(req.file.buffer);
       });
 
-      imageUrl = result.secure_url; // ✅ Cloudinary Image URL
+      imageUrl = result.secure_url;
     }
 
     const event = new Event({
       name,
       description,
       date,
+      category: formattedCategory, // ✅ Use formatted category
       location,
       image: imageUrl,
       createdBy: req.user._id,
     });
 
     await event.save();
-    console.log("Event saved:", event);
+    console.log("✅ Event saved:", event);
     res.status(201).json(event);
   } catch (err) {
-    console.error("Error creating event:", err);
+    console.error("❌ Error creating event:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -50,7 +50,40 @@ exports.createEvent = async (req, res) => {
 // Get All Events
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find().populate("createdBy", "username");
+    console.log("Received Filter Params:", req.query); // ✅ Debugging Log
+
+    const { category, date, timeframe } = req.query;
+    const filter = {};
+
+    // ✅ Category filter
+    if (category && category !== "all") {
+      filter.category = category;
+    }
+
+    // Date filter
+    if (date) {
+      const selectedDate = new Date(date);
+      const nextDay = new Date(selectedDate);
+      nextDay.setDate(selectedDate.getDate() + 1);
+
+      filter.date = {
+        $gte: selectedDate,
+        $lt: nextDay,
+      };
+    }
+
+    // ✅ Timeframe filter (upcoming/past)
+    if (timeframe === "upcoming") {
+      filter.date = { $gte: new Date() };
+    } else if (timeframe === "past") {
+      filter.date = { $lt: new Date() };
+    }
+
+    console.log("Applied Filters:", filter); // ✅ Debugging Log
+
+    const events = await Event.find(filter)
+      .populate("createdBy", "username")
+      .sort({ date: 1 });
     res.json(events);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
