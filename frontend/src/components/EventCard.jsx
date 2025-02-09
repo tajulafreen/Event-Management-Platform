@@ -14,8 +14,10 @@ export default function EventCard({ event }) {
 
       const response = await fetch(
         `http://localhost:5000/api/events/${event._id}/rsvp`,
+
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // ✅ Send token for authentication
@@ -30,7 +32,7 @@ export default function EventCard({ event }) {
         toast.error(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("RSVP Error:", error);
+      // console.error("RSVP Error:", error);
       alert("Something went wrong.");
     }
   };
@@ -44,9 +46,14 @@ export default function EventCard({ event }) {
       />
       <h2 className="text-xl font-bold mb-2">{event.name}</h2>
       <p className="text-gray-600 mb-2">{event.description}</p>
-      <p className="text-sm text-gray-500 mb-2">
-        📅 {new Date(event.date).toLocaleDateString()}
-      </p>
+      <div className="flex justify-between items-start mb-4">
+        <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded">
+          {event.category}
+        </span>
+        <span className="text-sm text-gray-500">
+          {new Date(event.date).toLocaleDateString()}
+        </span>
+      </div>
       <p className="text-sm text-gray-500 mb-4">📍 {event.location}</p>
       <div className="flex justify-between items-center">
         <span className="text-blue-600">
