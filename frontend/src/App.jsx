@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateEvent from "./components/CreateEvent";
 import { Toaster } from "react-hot-toast";
-
+import EditEventCard from "./components/EditEventCard";
 export default function App() {
   return (
     <AuthProvider>
@@ -22,6 +22,7 @@ export default function App() {
               {/* Protected Routes */}
               <Route path="/" element={<Dashboard />} />
               <Route path="/create-event" element={<CreateEvent />} />
+              <Route path="/edit-event/:id" element={<EditEventCard />} />
             </Routes>
           </div>
         </div>
