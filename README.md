@@ -67,7 +67,7 @@ Backend is implemented as an API-only service, while the frontend is built using
 
 ## 🚀 Live Demo <a id="live-demo"></a>
 
-Live demo: [Coming Soon]()
+Live demo: [Link](https://event-management-platform-mocha.vercel.app/)
 
 ## 💻 Getting Started <a id="getting-started"></a>
 
