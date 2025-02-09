@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useAuth } from "../context/AuthContext";
 
-export default function EventCard({ event }) {
-  const { user } = useAuth();
+export default function EventCard({ event, user }) {
   const API_BASE_URL = "http://localhost:5000";
-  const navigate = useNavigate(); // ✅ Initialize navigate
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this event?")) return;
@@ -26,7 +24,7 @@ export default function EventCard({ event }) {
 
       if (response.ok) {
         toast.success("Event deleted successfully!");
-        window.location.reload(); // ✅ Refresh event list
+        window.location.reload();
       } else {
         const data = await response.json();
         toast.error(`Error: ${data.message}`);
@@ -38,7 +36,7 @@ export default function EventCard({ event }) {
   };
 
   const handleEdit = () => {
-    navigate(`/edit-event/${event._id}`); // ✅ Redirects to the Edit Page
+    navigate(`/edit-event/${event._id}`);
   };
 
   const handleRSVP = async () => {
@@ -102,7 +100,6 @@ export default function EventCard({ event }) {
         </button>
         {user && String(event.createdBy?._id) === String(user._id) && (
           <div className="flex gap-2 mt-4">
-            {/* 🔹 Redirect to Edit Page on Click */}
             <button
               onClick={handleEdit}
               className="text-blue-500 hover:text-blue-700"

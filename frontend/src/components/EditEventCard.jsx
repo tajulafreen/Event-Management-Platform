@@ -55,7 +55,7 @@ export default function EditEventPage() {
 
       if (response.ok) {
         toast.success("Event updated successfully!");
-        navigate("/"); // ✅ Redirect to homepage after update
+        navigate("/"); // Navigate back to event list
       } else {
         const data = await response.json();
         toast.error(`Error: ${data.message}`);

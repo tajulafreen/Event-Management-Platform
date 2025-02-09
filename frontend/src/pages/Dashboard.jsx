@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import EventCard from "../components/EventCard";
 import { io } from "socket.io-client";
-
+import { useAuth } from "../context/AuthContext";
+import { useEvents } from "../context/EventContext"; // ✅ Use event context
 export default function Dashboard() {
+  const { user } = useAuth(); // ✅ Get logged-in user
+
   const [events, setEvents] = useState([]);
   const [filters, setFilters] = useState({
     category: "all",
@@ -28,8 +31,7 @@ export default function Dashboard() {
         if (filters.timeframe !== "all")
           params.append("timeframe", filters.timeframe);
 
-        console.log("Fetching events with filters:", params.toString()); // ✅ Debugging Log
-
+        console.log("Fetching events with filters:", params.toString());
         const res = await axios.get(
           `${API_BASE_URL}/api/events?${params.toString()}`
         );
@@ -41,10 +43,8 @@ export default function Dashboard() {
         );
       }
     };
-
     fetchEvents();
 
-    // ✅ WebSocket Update for Real-time Attendee Updates
     socket.on("attendeeUpdate", (data) => {
       console.log("📡 Received WebSocket Update:", data);
       setEvents((prev) =>
@@ -57,16 +57,15 @@ export default function Dashboard() {
     });
 
     return () => socket.disconnect();
-  }, [filters]);
+  }, [filters, setEvents, user]);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Upcoming Events</h1>
 
       {/* 🔹 Filters Section */}
-      <div className="filter-section mb-8 p-4 bg-slate-50  rounded-lg shadow-md">
+      <div className="filter-section mb-8 p-4 bg-gray-50 rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Category Filter */}
           <select
             value={filters.category}
             onChange={(e) =>
@@ -84,7 +83,6 @@ export default function Dashboard() {
             )}
           </select>
 
-          {/* Date Filter */}
           <input
             type="date"
             value={filters.date}
@@ -92,7 +90,6 @@ export default function Dashboard() {
             className="p-2 border rounded"
           />
 
-          {/* Timeframe Filter */}
           <select
             value={filters.timeframe}
             onChange={(e) =>
@@ -110,7 +107,9 @@ export default function Dashboard() {
       {/* 🔹 Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {events.length > 0 ? (
-          events.map((event) => <EventCard key={event._id} event={event} />)
+          events.map((event) => (
+            <EventCard key={event._id} event={event} user={user} />
+          ))
         ) : (
           <p className="text-gray-500 text-center w-full">No events found</p>
         )}
