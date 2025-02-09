@@ -13,7 +13,7 @@ export default function App() {
       <Router>
         <Navbar />
         <Toaster position="top-right" /> {/* For notifications */}
-        <div className="min-h-screen bg-gray-300   p-4">
+        <div className="min-h-screen bg-gray-50  p-4">
           <div className="container mx-auto">
             <Routes>
               {/* Public Routes */}
