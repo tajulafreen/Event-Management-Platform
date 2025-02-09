@@ -193,8 +193,4 @@ If you like this project, please give it a ⭐️!
 
 ---
 
-## 📝 License <a id="license"></a>
-
-This project is **MIT** licensed.
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
