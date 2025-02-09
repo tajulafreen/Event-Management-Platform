@@ -5,24 +5,48 @@ import { io } from "socket.io-client";
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
+  const [filters, setFilters] = useState({
+    category: "all",
+    date: "",
+    timeframe: "all",
+  });
 
   const API_BASE_URL = "http://localhost:5000";
 
   useEffect(() => {
-    const socket = io("http://localhost:5000", {
+    const socket = io(API_BASE_URL, {
       withCredentials: true,
-
       transports: ["websocket"],
     });
+
     const fetchEvents = async () => {
-      const res = await axios.get(`${API_BASE_URL}/api/events`);
-      setEvents(res.data);
+      try {
+        const params = new URLSearchParams();
+        if (filters.category !== "all")
+          params.append("category", filters.category);
+        if (filters.date) params.append("date", filters.date);
+        if (filters.timeframe !== "all")
+          params.append("timeframe", filters.timeframe);
+
+        console.log("Fetching events with filters:", params.toString()); // ✅ Debugging Log
+
+        const res = await axios.get(
+          `${API_BASE_URL}/api/events?${params.toString()}`
+        );
+        setEvents(res.data);
+      } catch (error) {
+        console.error(
+          "Error fetching events:",
+          error.response?.data || error.message
+        );
+      }
     };
+
     fetchEvents();
 
+    // ✅ WebSocket Update for Real-time Attendee Updates
     socket.on("attendeeUpdate", (data) => {
-      console.log("Received WS update:", data);
-      // ... existing update logic ...
+      console.log("📡 Received WebSocket Update:", data);
       setEvents((prev) =>
         prev.map((event) =>
           event._id === data.eventId
@@ -33,15 +57,63 @@ export default function Dashboard() {
     });
 
     return () => socket.disconnect();
-  }, []);
+  }, [filters]);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Upcoming Events</h1>
+
+      {/* 🔹 Filters Section */}
+      <div className="filter-section mb-8 p-4 bg-slate-50  rounded-lg shadow-md">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Category Filter */}
+          <select
+            value={filters.category}
+            onChange={(e) =>
+              setFilters({ ...filters, category: e.target.value })
+            }
+            className="p-2 border rounded"
+          >
+            <option value="all">All Categories</option>
+            {["Music", "Sports", "Tech", "Business", "Education", "Other"].map(
+              (opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              )
+            )}
+          </select>
+
+          {/* Date Filter */}
+          <input
+            type="date"
+            value={filters.date}
+            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+            className="p-2 border rounded"
+          />
+
+          {/* Timeframe Filter */}
+          <select
+            value={filters.timeframe}
+            onChange={(e) =>
+              setFilters({ ...filters, timeframe: e.target.value })
+            }
+            className="p-2 border rounded"
+          >
+            <option value="all">All Events</option>
+            <option value="upcoming">Upcoming Events</option>
+            <option value="past">Past Events</option>
+          </select>
+        </div>
+      </div>
+
+      {/* 🔹 Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event) => (
-          <EventCard key={event._id} event={event} />
-        ))}
+        {events.length > 0 ? (
+          events.map((event) => <EventCard key={event._id} event={event} />)
+        ) : (
+          <p className="text-gray-500 text-center w-full">No events found</p>
+        )}
       </div>
     </div>
   );
