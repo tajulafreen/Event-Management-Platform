@@ -13,7 +13,7 @@ export default function CreateEvent() {
   const [image, setImage] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "https://event-management-platform-m3c3.onrender.com";
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return toast.error("Please login first!");

@@ -14,7 +14,7 @@ export default function Dashboard() {
     timeframe: "all",
   });
 
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "https://event-management-platform-m3c3.onrender.com";
 
   useEffect(() => {
     const socket = io(API_BASE_URL, {

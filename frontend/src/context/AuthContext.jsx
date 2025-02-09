@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://event-management-platform-m3c3.onrender.com";
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 

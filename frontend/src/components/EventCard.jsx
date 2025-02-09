@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
 export default function EventCard({ event, user }) {
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "https://event-management-platform-m3c3.onrender.com";
   const navigate = useNavigate();
 
   const handleDelete = async () => {

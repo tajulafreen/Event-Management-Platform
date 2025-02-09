@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://event-management-platform-m3c3.onrender.com";
 
 export default function Register() {
   const [username, setUsername] = useState("");

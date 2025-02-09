@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 export default function EditEventPage() {
   const { id } = useParams(); // ✅ Get event ID from URL
   const navigate = useNavigate();
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "https://event-management-platform-m3c3.onrender.com";
 
   const [eventData, setEventData] = useState({
     name: "",
@@ -24,7 +24,6 @@ export default function EditEventPage() {
         setEventData(data);
       } catch (error) {
         console.error("Error fetching event:", error);
-        toast.error("Failed to load event details.");
       }
     };
     fetchEvent();
